@@ -2,38 +2,17 @@ import React, { useEffect } from 'react';
 import './App.css';
 import { AppRouter } from './router/AppRouter';
 import { MainLayout } from './layouts/MainLayout';
-import { Card } from './components/ui/Card';
-import { Button } from './components/ui/Button';
 import { getEnv } from './config/env';
 import { getFeatureFlags } from './config/featureFlags';
 import { logger } from './utils/logger';
 
-function Home() {
-  return (
-    <Card title="Welcome to Jump Squad" footer={<span className="muted">Ocean Professional theme</span>}>
-      <p className="muted">This is the home screen placeholder.</p>
-      <div style={{ marginTop: 12 }}>
-        <Button>Primary</Button>
-        <span style={{ marginInline: 6 }} />
-        <Button variant="secondary">Secondary</Button>
-      </div>
-    </Card>
-  );
-}
-function Play() {
-  return (
-    <Card title="Play">
-      <p className="muted">Game area will render here.</p>
-    </Card>
-  );
-}
-function Leaderboard() {
-  return (
-    <Card title="Leaderboard">
-      <p className="muted">Leaderboard placeholder.</p>
-    </Card>
-  );
-}
+// Screens
+import Home from './screens/Home';
+import Lobby from './screens/Lobby';
+import Game from './screens/Game';
+import Customize from './screens/Customize';
+import Leaderboard from './screens/Leaderboard';
+import NotFound from './screens/NotFound';
 
 // PUBLIC_INTERFACE
 function App() {
@@ -50,13 +29,15 @@ function App() {
 
   const routes = [
     { path: '/', element: <Home /> },
-    { path: '/play', element: <Play /> },
+    { path: '/lobby', element: <Lobby /> },
+    { path: '/game', element: <Game /> },
+    { path: '/customize', element: <Customize /> },
     { path: '/leaderboard', element: <Leaderboard /> },
   ];
 
   return (
     <MainLayout>
-      <AppRouter routes={routes} />
+      <AppRouter routes={routes} notFound={NotFound} />
     </MainLayout>
   );
 }

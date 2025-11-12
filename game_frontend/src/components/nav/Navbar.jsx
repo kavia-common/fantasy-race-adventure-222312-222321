@@ -23,11 +23,18 @@ export function Navbar() {
             Home
           </a>
           <a
-            href="#/play"
-            className={path === '/play' ? 'active' : ''}
-            onClick={(e) => { e.preventDefault(); navigate('/play'); }}
+            href="#/lobby"
+            className={path === '/lobby' ? 'active' : ''}
+            onClick={(e) => { e.preventDefault(); navigate('/lobby'); }}
           >
-            Play
+            Lobby
+          </a>
+          <a
+            href="#/customize"
+            className={path === '/customize' ? 'active' : ''}
+            onClick={(e) => { e.preventDefault(); navigate('/customize'); }}
+          >
+            Customize
           </a>
           <a
             href="#/leaderboard"
