@@ -41,4 +41,9 @@ export const selectors = {
   coins: (state) => Number(state.user?.coins) || 0,
   /** Whether user can afford a price. */
   canAfford: (price) => (state) => (Number(state.user?.coins) || 0) >= (Number(price) || 0),
+
+  /** Leaderboard items cache. */
+  leaderboardItems: (state) => state.leaderboard.items,
+  /** Leaderboard fetch status. */
+  leaderboardStatus: (state) => state.leaderboard.status,
 };

@@ -43,6 +43,11 @@ export const initialToasts = {
   items: [],
 };
 
+export const initialLeaderboard = {
+  items: [],
+  status: 'idle', // idle|loading|loaded|error
+};
+
 // Domain reducers
 function userReducer(state = initialUser, action) {
   switch (action.type) {
@@ -61,6 +66,17 @@ function userReducer(state = initialUser, action) {
       const next = Math.max(0, (Number(state.coins) || 0) - sub);
       return { ...state, coins: next };
     }
+    default:
+      return state;
+  }
+}
+
+function leaderboardReducer(state = initialLeaderboard, action) {
+  switch (action.type) {
+    case ActionTypes.LEADERBOARD_SET:
+      return { ...state, items: action.payload || [], status: 'loaded' };
+    case ActionTypes.LEADERBOARD_STATUS:
+      return { ...state, status: action.payload?.status || 'idle' };
     default:
       return state;
   }
@@ -196,6 +212,7 @@ export const initialState = {
   game: initialGame,
   cosmetics: initialCosmetics,
   toasts: initialToasts,
+  leaderboard: initialLeaderboard,
 };
 
 // PUBLIC_INTERFACE
@@ -208,5 +225,6 @@ export function rootReducer(state, action) {
     game: gameReducer(state.game, action),
     cosmetics: cosmeticsReducer(state.cosmetics, action),
     toasts: toastsReducer(state.toasts, action),
+    leaderboard: leaderboardReducer(state.leaderboard, action),
   };
 }

@@ -24,6 +24,33 @@ async function withFallback(promise, mockValue, ctxLabel = 'api') {
  * Mock data providers
  */
 const mockUser = { id: 'guest', name: 'Guest', coins: 0, avatar: 'basic' };
+
+/**
+ * PUBLIC_INTERFACE
+ * Leaderboard API
+ */
+const mockTopScores = [
+  { id: 'u1', name: 'Nova', score: 12450 },
+  { id: 'u2', name: 'Kai', score: 11210 },
+  { id: 'u3', name: 'Mika', score: 9750 },
+  { id: 'u4', name: 'Aria', score: 8960 },
+  { id: 'u5', name: 'Zed', score: 8450 },
+];
+
+/**
+ * Fetch top scores. Returns array of {id,name,score}.
+ * Accepts optional { limit } query param.
+ */
+export const leaderboardApi = {
+  // PUBLIC_INTERFACE
+  async getTopScores({ limit = 10 } = {}) {
+    return withFallback(
+      httpGet('leaderboard/top', { limit }),
+      mockTopScores.slice(0, limit),
+      'leaderboard.getTopScores'
+    );
+  },
+};
 const mockLobbyList = [
   { id: 'lobby-1', name: 'Casual Run', players: 2, maxPlayers: 8, status: 'open' },
   { id: 'lobby-2', name: 'Pro League', players: 5, maxPlayers: 8, status: 'open' },

@@ -42,6 +42,10 @@ export const ActionTypes = {
   TOAST_ADD: 'toast/add',
   TOAST_DISMISS: 'toast/dismiss',
   TOAST_CLEAR_ALL: 'toast/clearAll',
+
+  // Leaderboard
+  LEADERBOARD_SET: 'leaderboard/set',
+  LEADERBOARD_STATUS: 'leaderboard/status',
 };
 
 // PUBLIC_INTERFACE
@@ -105,4 +109,9 @@ export const actions = {
   dismissToast: (id) => ({ type: ActionTypes.TOAST_DISMISS, payload: { id } }),
   /** Clear all toasts. */
   clearToasts: () => ({ type: ActionTypes.TOAST_CLEAR_ALL }),
+
+  /** Set leaderboard items (array of {id,name,score}). */
+  setLeaderboard: (items) => ({ type: ActionTypes.LEADERBOARD_SET, payload: Array.isArray(items) ? items : [] }),
+  /** Set leaderboard status: idle|loading|loaded|error */
+  setLeaderboardStatus: (status) => ({ type: ActionTypes.LEADERBOARD_STATUS, payload: { status } }),
 };

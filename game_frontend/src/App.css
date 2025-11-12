@@ -23,4 +23,6 @@
   top: 16px;
   align-self: start;
   height: fit-content;
+  padding: 12px;
+  border-radius: var(--radius-md);
 }
