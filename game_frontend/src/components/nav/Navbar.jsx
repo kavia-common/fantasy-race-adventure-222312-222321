@@ -2,6 +2,7 @@ import React from 'react';
 import { useHashRoute } from '../../router/AppRouter';
 import { Button } from '../ui/Button';
 import './navbar.css';
+import { getFeatureFlags } from '../../config/featureFlags';
 
 // PUBLIC_INTERFACE
 export function Navbar() {

@@ -23,6 +23,8 @@ export function useGameEngine() {
     score: 0,
     distance: 0,
     coins: 0,
+    cpuDistance: 0,
+    lead: 0, // positive = player ahead (px)
   });
 
   const stateRef = useRef({
@@ -31,6 +33,7 @@ export function useGameEngine() {
     time: 0,
     scrollX: 0,
     player: null,
+    cpu: null,
     coins: [],
     obstacles: [],
     powerups: [],
@@ -52,18 +55,32 @@ export function useGameEngine() {
     s.viewport.height = rect.height;
     s.floorY = Math.floor(rect.height * 0.82);
     if (s.player) s.player.floorY = s.floorY;
+    if (s.cpu) s.cpu.floorY = s.floorY;
   }, []);
 
   const spawnInitial = useCallback(() => {
     const s = stateRef.current;
     s.player = new Player({ x: 80, y: s.floorY - 48, floorY: s.floorY });
+
+    // CPU runner with slight speed boost based on aiDifficulty flag
+    const cpu = new Player({ x: 80, y: s.floorY - 48, floorY: s.floorY });
+    let boost = 1.02;
+    try {
+      const { getFeatureFlags } = require('../config/featureFlags');
+      const flags = getFeatureFlags();
+      const diff = (flags.get?.('aiDifficulty') || 'easy').toString();
+      boost = diff === 'medium' ? 1.06 : 1.02;
+    } catch {}
+    cpu.speed = Math.floor(cpu.speed * boost);
+    s.cpu = cpu;
+
     s.coins = [];
     s.obstacles = [];
     s.powerups = [];
     s.time = 0;
     s.scrollX = 0;
     s.alive = true;
-    setStats({ score: 0, distance: 0, coins: 0 });
+    setStats({ score: 0, distance: 0, coins: 0, cpuDistance: 0, lead: 0 });
   }, []);
 
   const spawnLoop = useCallback((dt) => {
@@ -128,8 +145,27 @@ export function useGameEngine() {
         if (!s.player || !s.alive) return;
         s.player.update(dt, input);
 
+        // CPU AI
+        if (s.cpu) {
+          const aiInput = { jump: false, slide: false, dash: false, pause: false };
+          // find closest obstacle ahead of cpu
+          let nearest = null;
+          for (const o of s.obstacles) {
+            if (o.x + o.w >= s.cpu.x && (nearest === null || o.x < nearest.x)) nearest = o;
+          }
+          if (nearest) {
+            const dx = nearest.x - (s.cpu.x + s.cpu.w);
+            const verticalOverlap = (s.cpu.y + s.cpu.h) > nearest.y && (s.cpu.y < nearest.y + nearest.h);
+            if (dx < 140 && verticalOverlap && s.cpu.grounded) {
+              aiInput.jump = true;
+            }
+          }
+          s.cpu.update(dt, aiInput);
+        }
+
         // scroll
         const worldSpeed = s.player.getEffectiveSpeed();
+        const cpuSpeed = s.cpu ? s.cpu.getEffectiveSpeed() : worldSpeed;
         s.scrollX += dt * worldSpeed;
 
         // spawn/update entities
@@ -168,11 +204,17 @@ export function useGameEngine() {
         s.obstacles = s.obstacles.filter(o => !o.hit || o.x > -60);
 
         // distance and score over time
-        setStats(prev => ({
-          ...prev,
-          distance: prev.distance + worldSpeed * dt,
-          score: prev.score + Math.floor(2 * dt * 10) // small passive score
-        }));
+        setStats(prev => {
+          const nextPlayerDist = prev.distance + worldSpeed * dt;
+          const nextCpuDist = prev.cpuDistance + cpuSpeed * dt;
+          return {
+            ...prev,
+            distance: nextPlayerDist,
+            cpuDistance: nextCpuDist,
+            lead: Math.round(nextPlayerDist - nextCpuDist),
+            score: prev.score + Math.floor(2 * dt * 10), // small passive score
+          };
+        });
       },
       render: (ctx, _state, _eng) => {
         const s = stateRef.current;
@@ -184,7 +226,27 @@ export function useGameEngine() {
         // Background
         drawParallax(ctx, s);
 
-        // Entities
+        // Draw CPU first (amber) then player (blue)
+        if (s.cpu) {
+          ctx.save();
+          ctx.fillStyle = '#F59E0B';
+          const p = s.cpu;
+          const r = 8;
+          const rr = Math.min(r, p.w / 2, p.h / 2);
+          ctx.beginPath();
+          ctx.moveTo(p.x + rr, p.y);
+          ctx.arcTo(p.x + p.w, p.y, p.x + p.w, p.y + p.h, rr);
+          ctx.arcTo(p.x + p.w, p.y + p.h, p.x, p.y + p.h, rr);
+          ctx.arcTo(p.x, p.y + p.h, p.x, p.y, rr);
+          ctx.arcTo(p.x, p.y, p.x + p.w, p.y, rr);
+          ctx.closePath();
+          ctx.fill();
+          // face mark
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          ctx.fillRect(p.x + p.w - 10, p.y + 8, 4, 8);
+          ctx.restore();
+        }
+
         if (s.player) drawPlayer(ctx, s.player);
         s.coins.forEach(c => drawCoin(ctx, { ...c, y: c.y + (c._bobY || 0) }));
         s.obstacles.forEach(o => drawObstacle(ctx, o));

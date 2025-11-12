@@ -13,10 +13,12 @@ export default function GameCanvas() {
     viewport: { width: 640, height: 360 },
     floorY: 320,
     player: { x: 80, y: 0, w: 36, h: 46, vy: 0, grounded: true },
+    cpu:   { x: 80, y: 0, w: 36, h: 46, vy: 0, grounded: true },
     gravity: 2200,
     jumpVel: -880,
     scroll: 0,
     speed: 260,
+    obstacles: [],
   });
 
   // Resize for crisp rendering
@@ -35,6 +37,8 @@ export default function GameCanvas() {
     // Clamp player onto floor
     const p = s.player;
     p.y = Math.min(p.y, s.floorY - p.h);
+    const c = s.cpu;
+    c.y = Math.min(c.y, s.floorY - c.h);
   }
 
   // Simple draw helpers (kept minimal per provided graphics)
@@ -65,9 +69,9 @@ export default function GameCanvas() {
     }
   }
 
-  function drawPlayer(ctx, p) {
+  function drawPlayer(ctx, p, color = '#2563EB') {
     const r = 8;
-    ctx.fillStyle = '#2563EB';
+    ctx.fillStyle = color;
     ctx.beginPath();
     const x = p.x, y = p.y, w = p.w, h = p.h;
     const rr = Math.min(r, w / 2, h / 2);
@@ -82,6 +86,20 @@ export default function GameCanvas() {
     // face mark
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.fillRect(p.x + p.w - 10, p.y + 8, 4, 8);
+  }
+
+  function drawObstacle(ctx, o) {
+    ctx.fillStyle = 'rgba(17,24,39,0.85)';
+    const r = 6, x = o.x, y = o.y, w = o.w, h = o.h;
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+    ctx.fill();
   }
 
   // Input: Space/Up/W -> jump
@@ -135,12 +153,54 @@ export default function GameCanvas() {
         p.grounded = true;
       }
 
+      // CPU physics and simple AI
+      const c = s.cpu;
+      // spawn obstacles randomly
+      if (Math.random() < 0.02) {
+        const h = 26 + Math.random() * 28;
+        const w = 22 + Math.random() * 22;
+        const y = s.floorY - h;
+        const x = s.viewport.width + 40 + Math.random() * 80;
+        s.obstacles.push({ x, y, w, h });
+      }
+      // move obstacles left
+      s.obstacles.forEach(o => { o.x -= s.speed * dt; });
+      s.obstacles = s.obstacles.filter(o => o.x > -80);
+
+      if (c) {
+        c.vy += s.gravity * dt;
+        c.y += c.vy * dt;
+        const cFoot = c.y + c.h;
+        if (cFoot >= s.floorY) {
+          c.y = s.floorY - c.h;
+          c.vy = 0;
+          c.grounded = true;
+        }
+        // AI: jump when nearest obstacle in path within threshold
+        let nearest = null;
+        for (const o of s.obstacles) {
+          if (o.x + o.w >= c.x && (nearest === null || o.x < nearest.x)) nearest = o;
+        }
+        if (nearest) {
+          const dx = nearest.x - (c.x + c.w);
+          const verticalOverlap = (c.y + c.h) > nearest.y && (c.y < nearest.y + nearest.h);
+          if (dx < 140 && verticalOverlap && c.grounded) {
+            c.vy = s.jumpVel;
+            c.grounded = false;
+          }
+        }
+      }
+
       s.scroll += s.speed * dt;
 
       // render
       ctx.clearRect(0, 0, s.viewport.width, s.viewport.height);
       drawBackground(ctx, s);
+      // draw CPU first in amber to distinguish
+      if (s.cpu) drawPlayer(ctx, s.cpu, '#F59E0B');
       drawPlayer(ctx, p);
+      // draw obstacles
+      s.obstacles.forEach(o => drawObstacle(ctx, o));
 
       loop.raf = requestAnimationFrame(tick);
     };

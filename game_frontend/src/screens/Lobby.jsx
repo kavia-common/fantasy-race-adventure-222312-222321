@@ -4,12 +4,29 @@ import { Button } from '../components/ui/Button';
 import { useActions, useSelector, selectors } from '../state/store';
 import { lobbyApi } from '../api/endpoints';
 import { logger } from '../utils/logger';
-import { usePublish, useSocket, useSocketEvent } from '../realtime/hooks/useSocket';
-import { RealtimeEvents } from '../realtime/events';
+import { getFeatureFlags } from '../config/featureFlags';
+
+// Ensure component imports are explicit (for linter)
 import RoomList from '../components/lobby/RoomList';
 import RoomCreateJoin from '../components/lobby/RoomCreateJoin';
 import PlayerList from '../components/lobby/PlayerList';
 import ChatPanel from '../components/lobby/ChatPanel';
+
+// Lazy socket imports to avoid bundling/connecting when disabled
+let usePublish, useSocket, useSocketEvent, RealtimeEvents;
+try {
+  const hooks = require('../realtime/hooks/useSocket');
+  const events = require('../realtime/events');
+  usePublish = hooks.usePublish;
+  useSocket = hooks.useSocket;
+  useSocketEvent = hooks.useSocketEvent;
+  RealtimeEvents = events.RealtimeEvents;
+} catch {
+  usePublish = () => () => {};
+  useSocket = () => null;
+  useSocketEvent = () => null;
+  RealtimeEvents = {};
+}
 
 // Generate a lightweight random id for optimistic entities
 function genId() {
@@ -19,14 +36,20 @@ function genId() {
 // PUBLIC_INTERFACE
 export function Lobby() {
   /** Lobby browser/creation screen with realtime, fallbacks, and optimistic updates. */
+  const flags = getFeatureFlags();
+  const multiplayerEnabled = !!flags.get?.('multiplayer', flags.has('multiplayer'));
+
+  // Always call hooks in consistent order
   const lobbyList = useSelector(selectors.lobbyList);
   const activeLobbyId = useSelector(selectors.activeLobbyId);
   const lobbyPlayers = useSelector(selectors.lobbyPlayers);
   const lobbyChat = useSelector(selectors.lobbyChat);
   const user = useSelector(selectors.user);
 
-  const { setLobbyList, setActiveLobby, addLobby, updateLobby, removeLobby,
-    setLobbyPlayers, updateLobbyPlayer, setReadyStatus, setLobbyChat, addLobbyChat, setLobbySocketStatus } = useActions();
+  const {
+    setLobbyList, setActiveLobby, addLobby, updateLobby, removeLobby,
+    setLobbyPlayers, updateLobbyPlayer, setReadyStatus, setLobbyChat, addLobbyChat, setLobbySocketStatus
+  } = useActions();
 
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -34,7 +57,7 @@ export function Lobby() {
   const socket = useSocket();
   const publish = usePublish();
 
-  // Live lobby list updates
+  // Live lobby list updates (no-op if socket hooks are inert)
   useSocketEvent(
     [RealtimeEvents.LOBBY_LIST, RealtimeEvents.LOBBY_CREATED, RealtimeEvents.LOBBY_UPDATED, RealtimeEvents.LOBBY_REMOVED],
     {
@@ -61,7 +84,6 @@ export function Lobby() {
     if (!socket) return;
     setLobbySocketStatus(socket.status);
     const onStatus = () => setLobbySocketStatus(socket.status);
-    // attach simple listeners through socket internals
     const int = setInterval(onStatus, 1000);
     return () => clearInterval(int);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,7 +98,6 @@ export function Lobby() {
       socket.subscribe(RealtimeEvents.LOBBY_UPDATED, (lobby) => updateLobby(lobby)),
       socket.subscribe(RealtimeEvents.LOBBY_REMOVED, ({ id }) => removeLobby(id)),
       socket.subscribe(RealtimeEvents.LOBBY_JOINED, (data) => {
-        // data: { lobbyId, players }
         if (data?.players) setLobbyPlayers(data.players);
         if (data?.lobbyId) setActiveLobby(data.lobbyId);
       }),
@@ -86,8 +107,7 @@ export function Lobby() {
         setLobbyPlayers(lobbyPlayers.filter(x => x.id !== p.id));
       }),
       socket.subscribe(RealtimeEvents.LOBBY_CHAT, (msg) => addLobbyChat({ ...msg, id: msg.id || genId(), ts: msg.ts || Date.now() })),
-      socket.subscribe(RealtimeEvents.MATCH_STARTED, (data) => {
-        // Navigate to game screen and set basic game state
+      socket.subscribe(RealtimeEvents.MATCH_STARTED, () => {
         window.location.hash = '#/game';
       }),
     ];
@@ -107,17 +127,14 @@ export function Lobby() {
   async function onCreate(payload) {
     setCreating(true);
     try {
-      // Optimistic: insert a pending room
       const optimistic = { id: `tmp-${genId()}`, name: payload?.name || 'Room', players: 1, maxPlayers: payload?.maxPlayers || 8, status: 'open', _optimistic: true };
       addLobby(optimistic);
       publish('create_room', payload);
 
       const room = await lobbyApi.create(payload);
-      // Replace optimistic entry
       removeLobby(optimistic.id);
       addLobby(room);
 
-      // Announce via socket if connected
       publish(RealtimeEvents.LOBBY_CREATED, room);
       setActiveLobby(room.id);
     } catch (e) {
@@ -130,17 +147,14 @@ export function Lobby() {
   async function onJoin(id) {
     try {
       publish('join_room', { roomId: id });
-      await lobbyApi.join(id); // fallback
+      await lobbyApi.join(id);
       setActiveLobby(id);
-      // optimistic navigation to game can be delayed; stay in lobby to ready up
-      // window.location.hash = '#/game';
     } catch (e) {
       logger.warn('[lobby] join failed', e);
     }
   }
 
   function onToggleReady(next) {
-    // Optimistic local update
     setReadyStatus(user?.id || 'guest', next);
     publish('ready_status', { lobbyId: activeLobbyId, playerId: user?.id || 'guest', ready: !!next });
   }
@@ -164,6 +178,22 @@ export function Lobby() {
     if (!lobbyPlayers.length) return false;
     return lobbyPlayers.every((p) => !!p.ready);
   }, [lobbyPlayers]);
+
+  // Render branch: show disabled notice if multiplayer off
+  if (!multiplayerEnabled) {
+    return (
+      <Card title="Lobby">
+        <div className="col" style={{ gap: 12 }}>
+          <div className="surface" style={{ padding: 12, borderRadius: 12 }}>
+            Multiplayer is currently disabled.
+          </div>
+          <div>
+            <Button onClick={() => (window.location.hash = '#/game')}>Play vs CPU</Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title="Lobby">

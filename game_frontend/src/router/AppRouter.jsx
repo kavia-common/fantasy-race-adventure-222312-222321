@@ -42,7 +42,20 @@ export function AppRouter({ routes, notFound: NotFound }) {
    * routes: [{ path: '/path', element: <Component/> }, ...]
    */
   const { path } = useHashRoute();
-  const match = routes.find(r => r.path === path);
+  let match = routes.find(r => r.path === path);
+
+  // Feature flag gate for lobby
+  if (match && path === '/lobby') {
+    try {
+      const { getFeatureFlags } = require('../config/featureFlags');
+      const flags = getFeatureFlags();
+      const multiplayerEnabled = !!flags.get?.('multiplayer', flags.has('multiplayer'));
+      if (!multiplayerEnabled) {
+        match = null;
+      }
+    } catch {}
+  }
+
   const El = match ? () => match.element : NotFound || (() => <div className="container">Not Found</div>);
   return <El />;
 }

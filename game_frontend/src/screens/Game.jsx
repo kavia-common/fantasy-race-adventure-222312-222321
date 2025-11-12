@@ -9,6 +9,7 @@ import HUD from '../components/game/HUD';
 import PauseMenu from '../components/game/PauseMenu';
 import ControlsOverlay from '../components/game/ControlsOverlay';
 import GameCanvas from '../components/game/GameCanvas';
+import { getFeatureFlags } from '../config/featureFlags';
 
 // Helper to read current mode from URL hash query (e.g., #/game?mode=user)
 function readModeFromHash() {
@@ -88,6 +89,9 @@ export function Game() {
     }
   }
 
+  const flags = getFeatureFlags();
+  const multiplayerEnabled = !!flags.get?.('multiplayer', flags.has('multiplayer'));
+
   return (
     <Card title="Game">
       {loading ? (
@@ -118,7 +122,7 @@ export function Game() {
                   User
                 </Button>
               </div>
-              <Button variant="ghost" onClick={() => (window.location.hash = '#/lobby')}>Lobby</Button>
+              {multiplayerEnabled && <Button variant="ghost" onClick={() => (window.location.hash = '#/lobby')}>Lobby</Button>}
               {game.status !== 'running' ? (
                 <Button onClick={onStart}>Start</Button>
               ) : (

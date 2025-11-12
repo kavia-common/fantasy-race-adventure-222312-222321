@@ -3,8 +3,11 @@ import { Button } from '../ui/Button';
 
 // PUBLIC_INTERFACE
 export function HUD({ stats, paused, onPause, onResume }) {
-  /** Heads-up display showing score, distance (m), and coins with pause/resume toggle. */
+  /** Heads-up display showing score, distance (m), coins, and head-to-head vs CPU, with pause/resume toggle. */
   const distanceM = Math.floor((stats?.distance || 0) / 3.6); // rough px->meters
+  const cpuM = Math.floor((stats?.cpuDistance || 0) / 3.6);
+  const lead = stats?.lead || 0;
+  const status = lead === 0 ? 'Tie' : lead > 0 ? 'Lead' : 'Behind';
   return (
     <div
       className="hud"
@@ -37,6 +40,15 @@ export function HUD({ stats, paused, onPause, onResume }) {
         <strong>{distanceM} m</strong>
         <span className="muted" style={{ fontSize: 13, marginLeft: 8 }}>Coins</span>
         <strong>{stats?.coins ?? 0}</strong>
+        <span className="muted" style={{ fontSize: 13, marginLeft: 8 }}>VS</span>
+        <span style={{ fontSize: 13 }}>
+          You {status}{' '}
+          <span style={{ color: lead >= 0 ? '#2563EB' : '#F59E0B', fontWeight: 700 }}>
+            {Math.abs(Math.floor(lead / 3.6))} m
+          </span>
+        </span>
+        <span className="muted" style={{ fontSize: 13, marginLeft: 8 }}>CPU</span>
+        <strong style={{ color: '#F59E0B' }}>{cpuM} m</strong>
       </div>
       <div style={{ pointerEvents: 'auto' }}>
         {!paused ? (

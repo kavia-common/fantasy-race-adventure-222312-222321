@@ -48,6 +48,7 @@ export function getEnv() {
     REACT_APP_HEALTHCHECK_PATH,
     REACT_APP_FEATURE_FLAGS,
     REACT_APP_EXPERIMENTS_ENABLED,
+    REACT_APP_FEATURE_FLAGS_DEFAULTS,
   } = process.env || {};
 
   const nodeEnv = REACT_APP_NODE_ENV || process.env.NODE_ENV || 'development';
@@ -66,6 +67,7 @@ export function getEnv() {
     logLevel: (REACT_APP_LOG_LEVEL || (isProd ? 'warn' : 'debug')).toLowerCase(),
     healthcheckPath: REACT_APP_HEALTHCHECK_PATH || '/healthz',
     featureFlags: parseCSV(REACT_APP_FEATURE_FLAGS),
+    featureFlagsDefaults: parseCSV(process.env.REACT_APP_FEATURE_FLAGS_DEFAULTS || 'multiplayer=false,aiDifficulty=easy'),
     experimentsEnabled: parseBool(REACT_APP_EXPERIMENTS_ENABLED, false),
   };
 }
