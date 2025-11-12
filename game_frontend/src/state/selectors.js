@@ -15,6 +15,12 @@ export const selectors = {
   activeLobbyId: (state) => state.lobby.activeLobbyId,
   /** Active lobby object or null. */
   activeLobby: (state) => state.lobby.list.find((l) => l.id === state.lobby.activeLobbyId) || null,
+  /** Players in active lobby. */
+  lobbyPlayers: (state) => state.lobby.players,
+  /** Chat messages in active lobby. */
+  lobbyChat: (state) => state.lobby.chat,
+  /** Lobby socket connection status. */
+  lobbySocketStatus: (state) => state.lobby.socketStatus,
 
   /** Game state. */
   game: (state) => state.game,

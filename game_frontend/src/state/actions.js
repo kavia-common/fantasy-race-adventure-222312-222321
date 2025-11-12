@@ -16,6 +16,13 @@ export const ActionTypes = {
   LOBBY_REMOVE: 'lobby/remove',
   LOBBY_SET_ACTIVE: 'lobby/setActive',
   LOBBY_CLEAR_ACTIVE: 'lobby/clearActive',
+  LOBBY_SET_PLAYERS: 'lobby/setPlayers',
+  LOBBY_UPDATE_PLAYER: 'lobby/updatePlayer',
+  LOBBY_SET_READY: 'lobby/setReady',
+  LOBBY_SET_CHAT: 'lobby/setChat',
+  LOBBY_ADD_CHAT: 'lobby/addChat',
+  LOBBY_CLEAR_CHAT: 'lobby/clearChat',
+  LOBBY_SET_SOCKET: 'lobby/setSocketStatus',
 
   // Game
   GAME_SET_STATE: 'game/setState',
@@ -54,6 +61,20 @@ export const actions = {
   setActiveLobby: (id) => ({ type: ActionTypes.LOBBY_SET_ACTIVE, payload: { id } }),
   /** Clear active lobby. */
   clearActiveLobby: () => ({ type: ActionTypes.LOBBY_CLEAR_ACTIVE }),
+  /** Replace players list for current lobby. */
+  setLobbyPlayers: (players) => ({ type: ActionTypes.LOBBY_SET_PLAYERS, payload: Array.isArray(players) ? players : [] }),
+  /** Update one player in current lobby by id. */
+  updateLobbyPlayer: (player) => ({ type: ActionTypes.LOBBY_UPDATE_PLAYER, payload: player }),
+  /** Set my ready status (or a player). */
+  setReadyStatus: (playerId, ready) => ({ type: ActionTypes.LOBBY_SET_READY, payload: { playerId, ready } }),
+  /** Replace chat messages. */
+  setLobbyChat: (messages) => ({ type: ActionTypes.LOBBY_SET_CHAT, payload: Array.isArray(messages) ? messages : [] }),
+  /** Push a chat message. */
+  addLobbyChat: (message) => ({ type: ActionTypes.LOBBY_ADD_CHAT, payload: message }),
+  /** Clear chat history. */
+  clearLobbyChat: () => ({ type: ActionTypes.LOBBY_CLEAR_CHAT }),
+  /** Track socket connectivity for lobby. */
+  setLobbySocketStatus: (status) => ({ type: ActionTypes.LOBBY_SET_SOCKET, payload: { status } }),
 
   /** Set full game state. */
   setGameState: (state) => ({ type: ActionTypes.GAME_SET_STATE, payload: state }),

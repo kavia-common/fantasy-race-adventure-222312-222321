@@ -16,6 +16,9 @@ export const initialUser = {
 export const initialLobby = {
   list: [],
   activeLobbyId: null,
+  players: [],           // [{id,name,ready}]
+  chat: [],              // [{id,user,text,ts}]
+  socketStatus: 'idle',  // idle|connecting|open|closed
 };
 
 export const initialGame = {
@@ -70,7 +73,35 @@ function lobbyReducer(state = initialLobby, action) {
     case ActionTypes.LOBBY_SET_ACTIVE:
       return { ...state, activeLobbyId: action.payload?.id ?? null };
     case ActionTypes.LOBBY_CLEAR_ACTIVE:
-      return { ...state, activeLobbyId: null };
+      return { ...state, activeLobbyId: null, players: [], chat: [] };
+    case ActionTypes.LOBBY_SET_PLAYERS:
+      return { ...state, players: action.payload || [] };
+    case ActionTypes.LOBBY_UPDATE_PLAYER: {
+      const p = action.payload;
+      if (!p || !p.id) return state;
+      const idx = state.players.findIndex(x => x.id === p.id);
+      const players = [...state.players];
+      if (idx >= 0) players[idx] = { ...players[idx], ...p };
+      else players.push(p);
+      return { ...state, players };
+    }
+    case ActionTypes.LOBBY_SET_READY: {
+      const { playerId, ready } = action.payload || {};
+      if (!playerId) return state;
+      const players = state.players.map(pl => (pl.id === playerId ? { ...pl, ready: !!ready } : pl));
+      return { ...state, players };
+    }
+    case ActionTypes.LOBBY_SET_CHAT:
+      return { ...state, chat: action.payload || [] };
+    case ActionTypes.LOBBY_ADD_CHAT: {
+      const item = action.payload;
+      if (!item) return state;
+      return { ...state, chat: [...state.chat, item] };
+    }
+    case ActionTypes.LOBBY_CLEAR_CHAT:
+      return { ...state, chat: [] };
+    case ActionTypes.LOBBY_SET_SOCKET:
+      return { ...state, socketStatus: action.payload?.status || 'idle' };
     default:
       return state;
   }
