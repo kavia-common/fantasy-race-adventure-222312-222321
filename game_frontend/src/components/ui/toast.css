@@ -1,0 +1,12 @@
+.toast-container {
+  position: fixed;
+  right: 16px; bottom: 16px;
+  display: grid; gap: 8px;
+  z-index: 60;
+}
+.toast {
+  padding: 10px 12px;
+  border-left: 4px solid var(--color-secondary);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}

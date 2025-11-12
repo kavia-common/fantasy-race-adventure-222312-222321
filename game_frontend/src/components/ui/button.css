@@ -1,0 +1,41 @@
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  background: linear-gradient(180deg, rgba(37,99,235,0.95), rgba(37,99,235,0.85));
+  color: var(--color-primary-contrast);
+  border-color: rgba(37,99,235,0.6);
+}
+.btn.secondary {
+  background: linear-gradient(180deg, rgba(245,158,11,0.95), rgba(245,158,11,0.85));
+  color: var(--color-secondary-contrast);
+  border-color: rgba(245,158,11,0.6);
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn.sm { padding: 6px 10px; border-radius: var(--radius-sm); }
+.btn.md { padding: 8px 14px; }
+.btn.lg { padding: 12px 18px; border-radius: var(--radius-lg); }

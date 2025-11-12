@@ -1,0 +1,15 @@
+.tabs { display: grid; gap: 10px; }
+.tab-list { display: flex; gap: 8px; }
+.tab {
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+.tab.active, .tab:hover {
+  color: var(--color-primary);
+  border-color: rgba(37,99,235,0.5);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+.tab-panel { padding: 12px; border-radius: var(--radius-md); }
