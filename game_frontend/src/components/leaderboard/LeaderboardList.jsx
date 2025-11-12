@@ -33,7 +33,7 @@ export function LeaderboardList({
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <strong style={{ fontSize: compact ? 14 : 16 }}>{title}</strong>
         {onRefresh && (
-          <Button variant="ghost" size="sm" onClick={onRefresh} aria-label="Refresh leaderboard">
+          <Button variant="ghost" size="sm" onClick={onRefresh} ariaLabel="Refresh leaderboard">
             Refresh
           </Button>
         )}
@@ -57,61 +57,64 @@ export function LeaderboardList({
         </div>
       )}
 
-      {trimmed.map((p, idx) => (
-        <div
-          key={p.id || `${p.name}-${idx}`}
-          className="surface"
-          style={{
-            padding: rowPadding,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-          aria-label={`Rank ${idx + 1}, ${p.name}, ${p.score} points`}
-        >
-          <div className="row" style={{ alignItems: 'center' }}>
-            <div
-              aria-hidden="true"
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 8,
-                background:
-                  idx === 0
-                    ? 'linear-gradient(180deg, rgba(245,158,11,0.95), rgba(245,158,11,0.75))'
-                    : idx === 1
-                    ? 'linear-gradient(180deg, rgba(37,99,235,0.95), rgba(37,99,235,0.75))'
-                    : 'linear-gradient(180deg, rgba(17,24,39,0.15), rgba(17,24,39,0.08))',
-                color: '#111827',
-                display: 'grid',
-                placeItems: 'center',
-                boxShadow: 'var(--shadow-sm)',
-                marginRight: 10,
-                fontWeight: 800,
-                fontSize: compact ? 12 : 13,
-              }}
-              title={`#${idx + 1}`}
-            >
-              #{idx + 1}
+      <ul role="list" aria-label={ariaLabel} style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
+        {trimmed.map((p, idx) => (
+          <li
+            key={p.id || `${p.name}-${idx}`}
+            role="listitem"
+            className="surface"
+            style={{
+              padding: rowPadding,
+              borderRadius: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+            aria-label={`Rank ${idx + 1}, ${p.name}, ${p.score} points`}
+          >
+            <div className="row" style={{ alignItems: 'center' }}>
+              <div
+                aria-hidden="true"
+                style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: 8,
+                  background:
+                    idx === 0
+                      ? 'linear-gradient(180deg, rgba(245,158,11,0.95), rgba(245,158,11,0.75))'
+                      : idx === 1
+                      ? 'linear-gradient(180deg, rgba(37,99,235,0.95), rgba(37,99,235,0.75))'
+                      : 'linear-gradient(180deg, rgba(17,24,39,0.15), rgba(17,24,39,0.08))',
+                  color: '#111827',
+                  display: 'grid',
+                  placeItems: 'center',
+                  boxShadow: 'var(--shadow-sm)',
+                  marginRight: 10,
+                  fontWeight: 800,
+                  fontSize: compact ? 12 : 13,
+                }}
+                title={`#${idx + 1}`}
+              >
+                #{idx + 1}
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize }}>{p.name}</div>
+                {!compact && (
+                  <div className="muted" style={{ fontSize: 12 }}>
+                    Player
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize }}>{p.name}</div>
-              {!compact && (
-                <div className="muted" style={{ fontSize: 12 }}>
-                  Player
-                </div>
-              )}
+            <div className="row" style={{ alignItems: 'baseline', gap: 6 }}>
+              <strong style={{ fontSize }}>{p.score}</strong>
+              <span className="muted" style={{ fontSize: 12 }}>
+                pts
+              </span>
             </div>
-          </div>
-          <div className="row" style={{ alignItems: 'baseline', gap: 6 }}>
-            <strong style={{ fontSize }}>{p.score}</strong>
-            <span className="muted" style={{ fontSize: 12 }}>
-              pts
-            </span>
-          </div>
-        </div>
-      ))}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

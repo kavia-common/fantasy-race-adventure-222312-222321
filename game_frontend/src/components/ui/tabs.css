@@ -6,8 +6,9 @@
   background: var(--surface);
   color: var(--muted);
   cursor: pointer;
+  transition: var(--motion-transform), box-shadow var(--motion-duration) var(--motion-ease), color var(--motion-duration-fast) var(--motion-ease);
 }
-.tab.active, .tab:hover {
+.tab.active, .tab:hover, .tab:focus-visible {
   color: var(--color-primary);
   border-color: rgba(37,99,235,0.5);
   box-shadow: 0 0 0 3px var(--ring);

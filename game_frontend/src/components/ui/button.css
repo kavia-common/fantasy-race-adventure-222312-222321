@@ -11,7 +11,7 @@
   color: var(--text);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  transition: var(--motion-transform), box-shadow var(--motion-duration) var(--motion-ease), background var(--motion-duration) var(--motion-ease);
 }
 .btn:hover {
   transform: translateY(-1px);
@@ -34,6 +34,11 @@
 .btn.ghost {
   background: transparent;
   color: var(--text);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn.sm { padding: 6px 10px; border-radius: var(--radius-sm); }

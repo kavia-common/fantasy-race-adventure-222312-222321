@@ -33,11 +33,11 @@ export function HealthCheck({ inline = false }) {
     <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
       <div>
         <div style={{ fontWeight: 600 }}>Service Health</div>
-        <div className="muted" style={{ fontSize: 13 }}>
+        <div className="muted" style={{ fontSize: 13 }} role="status" aria-live="polite">
           {status.ok === null ? 'Checking...' : status.ok ? `Healthy (HTTP ${status.code})` : `Unhealthy (HTTP ${status.code})`}
         </div>
       </div>
-      <Button variant="ghost" onClick={ping}>Refresh</Button>
+      <Button variant="ghost" onClick={ping} ariaLabel="Refresh health check">Refresh</Button>
     </div>
   );
 

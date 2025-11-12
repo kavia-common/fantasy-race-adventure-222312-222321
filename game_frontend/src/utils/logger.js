@@ -6,11 +6,15 @@ import { getEnv } from '../config/env';
 
 const levelOrder = ['trace', 'debug', 'info', 'warn', 'error', 'none'];
 
-function shouldLog(current, desired) {
-  const c = levelOrder.indexOf(current);
-  const d = levelOrder.indexOf(desired);
-  if (c === -1 || d === -1) return false;
-  return c <= d;
+/**
+ * Return true if a message with "messageLevel" should be emitted when env is set to "envLevel".
+ * Example: env=warn => only warn/error should print.
+ */
+function shouldLog(messageLevel, envLevel) {
+  const msgIdx = levelOrder.indexOf(messageLevel);
+  const envIdx = levelOrder.indexOf(envLevel);
+  if (msgIdx === -1 || envIdx === -1) return false;
+  return msgIdx >= envIdx;
 }
 
 function base() {

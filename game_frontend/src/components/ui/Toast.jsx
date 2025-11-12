@@ -9,7 +9,9 @@ export function useToast() {
     const id = Math.random().toString(36).slice(2);
     setToasts(prev => [...prev, { id, message }]);
     if (timeout) {
-      setTimeout(() => dismiss(id), timeout);
+      const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+      const effectiveTimeout = media && media.matches ? Math.min(timeout, 1200) : timeout;
+      setTimeout(() => dismiss(id), effectiveTimeout);
     }
   }
   function dismiss(id) {
@@ -20,12 +22,18 @@ export function useToast() {
 
 // PUBLIC_INTERFACE
 export function ToastContainer({ toasts = [], onDismiss }) {
-  /** Container rendering toasts */
+  /** Container rendering toasts, using aria-live for announcements and respecting reduced motion. */
   useEffect(() => {}, [toasts]);
   return (
-    <div className="toast-container">
+    <div className="toast-container" role="region" aria-live="polite" aria-relevant="additions text">
       {toasts.map(t => (
-        <div className="toast surface" key={t.id} onClick={() => onDismiss?.(t.id)}>
+        <div
+          className="toast surface"
+          key={t.id}
+          role="status"
+          tabIndex={0}
+          onClick={() => onDismiss?.(t.id)}
+        >
           {t.message}
         </div>
       ))}

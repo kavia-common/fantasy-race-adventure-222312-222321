@@ -11,7 +11,7 @@
   position: absolute; inset: 0;
   background: rgba(0,0,0,0.3);
   opacity: 0;
-  transition: opacity 180ms ease;
+  transition: var(--motion-opacity);
 }
 .drawer.open::before { opacity: 1; }
 
@@ -21,7 +21,7 @@
   width: var(--drawer-w, 360px);
   box-shadow: var(--shadow-lg);
   transform: translateX(100%);
-  transition: transform 220ms ease;
+  transition: var(--motion-transform);
 }
 .drawer.left .drawer-panel {
   left: 0;

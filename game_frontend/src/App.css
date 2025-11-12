@@ -7,7 +7,7 @@
 
 .main-content {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 16px;
   padding: 16px;
 }
@@ -23,6 +23,11 @@
   top: 16px;
   align-self: start;
   height: fit-content;
+  padding: 12px;
+  border-radius: var(--radius-md);
+}
+
+.sidebar .surface {
   padding: 12px;
   border-radius: var(--radius-md);
 }

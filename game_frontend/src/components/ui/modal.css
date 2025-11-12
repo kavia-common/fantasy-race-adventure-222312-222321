@@ -3,11 +3,13 @@
   background: rgba(0,0,0,0.35);
   display: grid; place-items: center;
   z-index: 50;
+  transition: var(--motion-opacity);
 }
 .modal {
   width: min(560px, 92vw);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  transition: var(--motion-transform), box-shadow var(--motion-duration) var(--motion-ease);
 }
 .modal-header, .modal-footer {
   display: flex; align-items: center; justify-content: space-between;

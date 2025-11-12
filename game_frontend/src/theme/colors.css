@@ -15,16 +15,42 @@
   --border: #e5e7eb;
   --ring: rgba(37, 99, 235, 0.35);
 
+  /* Refined gradient tokens for subtle depth */
   --gradient-start: rgba(37, 99, 235, 0.10); /* blue-500/10 */
+  --gradient-mid: rgba(255,255,255,0.65);
   --gradient-end: #f9fafb;                   /* gray-50 */
 
+  /* Radius scale unified */
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
 
+  /* Shadow scale tuned */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 14px 30px rgba(0,0,0,0.16);
+
+  /* Motion preferences */
+  --motion-duration-fast: 120ms;
+  --motion-duration: 180ms;
+  --motion-duration-slow: 220ms;
+  --motion-ease: ease;
+
+  /* Reduced motion fallbacks (overridden below when prefers-reduced-motion) */
+  --motion-transform: transform var(--motion-duration) var(--motion-ease);
+  --motion-opacity: opacity var(--motion-duration) var(--motion-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0ms;
+    --motion-duration: 0ms;
+    --motion-duration-slow: 0ms;
+    --motion-ease: linear;
+    --motion-transform: none;
+    --motion-opacity: none;
+  }
 }
 
 [data-theme="dark"] {
@@ -36,5 +62,6 @@
   --ring: rgba(245, 158, 11, 0.35); /* amber ring */
 
   --gradient-start: rgba(37, 99, 235, 0.12);
+  --gradient-mid: rgba(17, 24, 39, 0.6);
   --gradient-end: #0f172a;
 }

@@ -5,10 +5,10 @@ import { Button } from '../ui/Button';
 export function PlayerList({ players = [], meId, onToggleReady, onStartGame, canStart }) {
   /** Show players in room with ready toggle and start control. */
   return (
-    <div className="col" style={{ gap: 10 }}>
+    <div className="col" style={{ gap: 10 }} aria-label="Players list">
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <strong>Players</strong>
-        <Button onClick={onStartGame} disabled={!canStart} variant={canStart ? 'secondary' : 'ghost'}>
+        <Button onClick={onStartGame} disabled={!canStart} variant={canStart ? 'secondary' : 'ghost'} ariaLabel="Start game">
           Start Game
         </Button>
       </div>
@@ -26,6 +26,8 @@ export function PlayerList({ players = [], meId, onToggleReady, onStartGame, can
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
+          role="group"
+          aria-label={`${p.name || p.id}, ${p.ready ? 'Ready' : 'Not ready'}`}
         >
           <div>
             <div style={{ fontWeight: 600 }}>{p.name || p.id}</div>
@@ -35,11 +37,11 @@ export function PlayerList({ players = [], meId, onToggleReady, onStartGame, can
           </div>
           <div>
             {p.id === meId ? (
-              <Button onClick={() => onToggleReady?.(!p.ready)}>
+              <Button ariaLabel={p.ready ? 'Set not ready' : 'Set ready'} onClick={() => onToggleReady?.(!p.ready)}>
                 {p.ready ? 'Unready' : 'Ready'}
               </Button>
             ) : (
-              <span className="muted" style={{ fontSize: 12 }}>
+              <span className="muted" style={{ fontSize: 12 }} aria-label={p.ready ? 'Ready' : 'Not ready'}>
                 {p.ready ? '✓' : '...'}
               </span>
             )}
