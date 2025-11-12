@@ -21,6 +21,7 @@
   letter-spacing: 0.3px;
   color: var(--color-primary);
   cursor: pointer;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.06);
 }
 
 .links a {

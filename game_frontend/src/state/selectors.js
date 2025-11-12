@@ -36,4 +36,9 @@ export const selectors = {
 
   /** Toasts list. */
   toasts: (state) => state.toasts.items,
+
+  /** Wallet: current coin balance. */
+  coins: (state) => Number(state.user?.coins) || 0,
+  /** Whether user can afford a price. */
+  canAfford: (price) => (state) => (Number(state.user?.coins) || 0) >= (Number(price) || 0),
 };

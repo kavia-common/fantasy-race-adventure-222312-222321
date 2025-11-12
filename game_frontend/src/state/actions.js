@@ -34,6 +34,10 @@ export const ActionTypes = {
   COSMETICS_EQUIP: 'cosmetics/equip',
   COSMETICS_PURCHASE: 'cosmetics/purchase',
 
+  // Wallet
+  WALLET_EARN: 'wallet/earn',
+  WALLET_SPEND: 'wallet/spend',
+
   // Toasts
   TOAST_ADD: 'toast/add',
   TOAST_DISMISS: 'toast/dismiss',
@@ -89,6 +93,11 @@ export const actions = {
   equipCosmetic: (itemId) => ({ type: ActionTypes.COSMETICS_EQUIP, payload: { itemId } }),
   /** Mark cosmetic purchased. */
   purchaseCosmetic: (itemId) => ({ type: ActionTypes.COSMETICS_PURCHASE, payload: { itemId } }),
+
+  /** PUBLIC_INTERFACE Earn coins and add to wallet. */
+  earnCoins: (amount) => ({ type: ActionTypes.WALLET_EARN, payload: { amount: Math.max(0, Number(amount) || 0) } }),
+  /** PUBLIC_INTERFACE Spend coins from wallet (non-negative). */
+  spendCoins: (amount) => ({ type: ActionTypes.WALLET_SPEND, payload: { amount: Math.max(0, Number(amount) || 0) } }),
 
   /** Add a toast with optional timeoutMs (0 to persist). */
   addToast: (message, timeoutMs = 3000, id) => ({ type: ActionTypes.TOAST_ADD, payload: { id, message, timeoutMs } }),

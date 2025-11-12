@@ -52,6 +52,15 @@ function userReducer(state = initialUser, action) {
       return { ...initialUser };
     case ActionTypes.USER_UPDATE:
       return { ...state, ...(action.payload || {}) };
+    case ActionTypes.WALLET_EARN: {
+      const add = Math.max(0, Number(action.payload?.amount) || 0);
+      return { ...state, coins: (Number(state.coins) || 0) + add };
+    }
+    case ActionTypes.WALLET_SPEND: {
+      const sub = Math.max(0, Number(action.payload?.amount) || 0);
+      const next = Math.max(0, (Number(state.coins) || 0) - sub);
+      return { ...state, coins: next };
+    }
     default:
       return state;
   }
