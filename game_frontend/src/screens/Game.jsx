@@ -4,14 +4,20 @@ import { Button } from '../components/ui/Button';
 import { useActions, useSelector, selectors } from '../state/store';
 import { gameApi } from '../api/endpoints';
 import { logger } from '../utils/logger';
+import { useGameEngine } from '../hooks/useGameEngine';
+import HUD from '../components/game/HUD';
+import PauseMenu from '../components/game/PauseMenu';
+import ControlsOverlay from '../components/game/ControlsOverlay';
 
 // PUBLIC_INTERFACE
 export function Game() {
-  /** Gameplay screen shell; shows current match state and provides minimal controls. */
+  /** Gameplay screen with canvas-based endless runner, HUD, and pause/resume. */
   const game = useSelector(selectors.game);
   const { setGameState, updateGameState, clearGameState } = useActions();
   const [loading, setLoading] = useState(false);
   const matchId = game.matchId || 'local-1';
+
+  const { canvasRef, paused, pause, resume, restart, stats } = useGameEngine();
 
   useEffect(() => {
     (async () => {
@@ -30,6 +36,7 @@ export function Game() {
 
   function onStart() {
     updateGameState({ status: 'running', time: 0, matchId });
+    resume();
   }
 
   async function onExit() {
@@ -58,9 +65,14 @@ export function Game() {
               )}
             </div>
           </div>
-          <div className="surface" style={{ minHeight: 240, borderRadius: 12, display: 'grid', placeItems: 'center' }}>
-            <div className="muted">Game canvas placeholder</div>
+
+          <div className="surface" style={{ position: 'relative', borderRadius: 12, overflow: 'hidden' }}>
+            <canvas ref={canvasRef} aria-label="Game canvas" />
+            <HUD stats={stats} paused={paused} onPause={pause} onResume={resume} />
+            <ControlsOverlay />
+            <PauseMenu open={paused} onResume={resume} onRestart={restart} onExit={onExit} />
           </div>
+
           <div className="muted" style={{ fontSize: 13 }}>
             Players: {Array.isArray(game.players) ? game.players.length : 0}
           </div>
